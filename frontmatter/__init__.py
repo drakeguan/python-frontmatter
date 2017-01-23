@@ -19,12 +19,10 @@ from .util import u
 from .default_handlers import YAMLHandler, JSONHandler, TOMLHandler
 
 
-__all__ = ['parse', 'load', 'loads', 'dump', 'dumps']
+__all__ = ['parse', 'load', 'loads', 'dump', 'dumps', 'yaml_dumper', 'toml_dumper', 'json_dumper']
 
 POST_TEMPLATE = """\
-{start_delimiter}
 {metadata}
-{end_delimiter}
 
 {content}
 """
@@ -115,19 +113,28 @@ def dumps(post, **kwargs):
     """
     Serialize post to a string and return text.
     """
-    kwargs.setdefault('Dumper', SafeDumper)
-    kwargs.setdefault('default_flow_style', False)
-    
-    start_delimiter = kwargs.pop('start_delimiter', '---')
-    end_delimiter = kwargs.pop('end_delimiter', '---')
+    dumper = kwargs.pop('dumper', yaml_dumper)
 
-    metadata = yaml.dump(post.metadata, **kwargs).strip()
+    metadata = dumper(post.metadata, **kwargs)
     metadata = u(metadata) # ensure unicode
 
     return POST_TEMPLATE.format(
-        metadata=metadata, content=post.content,
-        start_delimiter=start_delimiter,
-        end_delimiter=end_delimiter).strip()
+        metadata=metadata, content=post.content).strip()
+
+
+def yaml_dumper(metadata, **kwargs):
+    kwargs.setdefault('Dumper', SafeDumper)
+    kwargs.setdefault('default_flow_style', False)
+    return '---\n'+yaml.dump(metadata, **kwargs).strip()+'\n---'
+
+
+def toml_dumper(metadata, **kwargs):
+    import toml
+    return '+++\n'+toml.dumps(metadata).strip()+'\n+++'
+
+
+def json_dumper(metadata, **kwargs):
+    return '{\n'+''+'\n}'
 
 
 class Post(object):
