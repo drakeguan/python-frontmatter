@@ -96,11 +96,11 @@ def loads(text, **defaults):
     return Post(content, **metadata)
 
 
-def dump(post, fd, **kwargs):
+def dump(post, fd, dumper=yaml_dumper, **kwargs):
     """
     Serialize post to a string and dump to a file-like object.
     """
-    content = dumps(post, **kwargs)
+    content = dumps(post, dumper, **kwargs)
     if hasattr(fd, 'write'):
         fd.write(content)
 
@@ -109,12 +109,10 @@ def dump(post, fd, **kwargs):
             f.write(content)
 
 
-def dumps(post, **kwargs):
+def dumps(post, dumper=yaml_dumper, **kwargs):
     """
     Serialize post to a string and return text.
     """
-    dumper = kwargs.pop('dumper', yaml_dumper)
-
     metadata = dumper(post.metadata, **kwargs)
     metadata = u(metadata) # ensure unicode
 
