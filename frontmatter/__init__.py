@@ -96,6 +96,21 @@ def loads(text, **defaults):
     return Post(content, **metadata)
 
 
+def yaml_dumper(metadata, **kwargs):
+    kwargs.setdefault('Dumper', SafeDumper)
+    kwargs.setdefault('default_flow_style', False)
+    return '---\n'+yaml.dump(metadata, **kwargs).strip()+'\n---'
+
+
+def toml_dumper(metadata, **kwargs):
+    import toml
+    return '+++\n'+toml.dumps(metadata).strip()+'\n+++'
+
+
+def json_dumper(metadata, **kwargs):
+    return '{\n'+''+'\n}'
+
+
 def dump(post, fd, dumper=yaml_dumper, **kwargs):
     """
     Serialize post to a string and dump to a file-like object.
@@ -118,21 +133,6 @@ def dumps(post, dumper=yaml_dumper, **kwargs):
 
     return POST_TEMPLATE.format(
         metadata=metadata, content=post.content).strip()
-
-
-def yaml_dumper(metadata, **kwargs):
-    kwargs.setdefault('Dumper', SafeDumper)
-    kwargs.setdefault('default_flow_style', False)
-    return '---\n'+yaml.dump(metadata, **kwargs).strip()+'\n---'
-
-
-def toml_dumper(metadata, **kwargs):
-    import toml
-    return '+++\n'+toml.dumps(metadata).strip()+'\n+++'
-
-
-def json_dumper(metadata, **kwargs):
-    return '{\n'+''+'\n}'
 
 
 class Post(object):
