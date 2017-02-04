@@ -61,7 +61,7 @@ if toml:
         FM_BOUNDARY = re.compile(r'^\+{3,}$', re.MULTILINE)
 
         def load(self, fm):
-            return toml.loads(fm)
+            return toml.loads(fm.encode('utf8'))
 
 else:
     TOMLHandler = None
